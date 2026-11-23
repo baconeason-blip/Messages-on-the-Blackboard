@@ -487,6 +487,8 @@ async function enterRoom(code) {
   }
   strokesRef = ref(db, `boards/${roomKey}/strokes`);
   roomTag.textContent = "房間 " + roomKey.slice(0, 6);
+  roomTag.style.cursor = "pointer";
+  roomTag.title = "點一下複製完整房間代碼（桌面小工具會用到）";
 
   onChildAdded(strokesRef,   s => upsertFromDB(s.key, s.val()));
   onChildChanged(strokesRef, s => upsertFromDB(s.key, s.val()));
@@ -521,6 +523,22 @@ function submitCode() {
 }
 codeGo.addEventListener("click", submitCode);
 codeInput.addEventListener("keydown", e => { if (e.key === "Enter") submitCode(); });
+
+/* 點左上角房間標籤 → 複製完整的 32 字元房間代碼。
+   桌面小工具（Scriptable）需要這串代碼才讀得到這塊黑板。 */
+roomTag.addEventListener("click", async () => {
+  if (!roomKey) return;
+  try {
+    await navigator.clipboard.writeText(roomKey);
+    toast("房間代碼已複製", 2400);
+  } catch (e) {
+    // Safari 偶爾會擋剪貼簿；退而求其次，直接把代碼顯示出來讓使用者長按選取
+    roomTag.textContent = roomKey;
+    roomTag.style.userSelect = "text";
+    roomTag.style.webkitUserSelect = "text";
+    toast("長按上方代碼即可選取複製", 3200);
+  }
+});
 
 /* 畫布事件 */
 canvas.addEventListener("pointerdown", e => {
