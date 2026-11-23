@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1">
+<meta name="theme-color" content="#102019">
+<meta name="description" content="兩個人共用的一塊黑板">
+<!-- iOS 加入主畫面後全螢幕顯示（manifest 之外的舊式宣告，為了相容舊版 iOS） -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="黑板">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css">
+<title>黑板</title>
+</head>
+<body>
+
+<!-- ============ 遮罩一：輸入邀請碼 ============ -->
+<section id="gate" class="overlay">
+  <div class="panel">
+    <h1>黑板</h1>
+    <p class="hint">輸入你們約好的邀請碼。<br>兩個人要輸入<strong>完全一樣</strong>的碼，才會連到同一塊黑板。</p>
+    <input id="codeInput" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
+           spellcheck="false" placeholder="邀請碼（建議 10 字元以上）">
+    <p id="codeWarn" class="warn"></p>
+    <button id="codeGo" class="primary">進入黑板</button>
+  </div>
+</section>
+
+<!-- ============ 遮罩二：選擇身分顏色 ============ -->
+<section id="picker" class="overlay hidden">
+  <div class="panel">
+    <h1>你是哪一支粉筆？</h1>
+    <p class="hint">顏色就是你的身分，選定後不會再問。</p>
+    <div class="chalkRow">
+      <button class="chalkPick" data-color="p">
+        <span class="swatch" style="--sw:#ff9ec7"></span>
+        <span>粉紅色</span>
+      </button>
+      <button class="chalkPick" data-color="b">
+        <span class="swatch" style="--sw:#8ad4ff"></span>
+        <span>淺藍色</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 主畫面：黑板 ============ -->
+<main id="board" class="hidden">
+  <header id="topbar">
+    <span id="roomTag"></span>
+    <span id="status" class="offline" title="連線狀態"></span>
+  </header>
+
+  <div id="stage">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <nav id="toolbar">
+    <!-- 筆粗三檔 -->
+    <button class="tool widthBtn" data-w="1" aria-label="細筆"><span class="dot d1"></span></button>
+    <button class="tool widthBtn active" data-w="2" aria-label="中筆"><span class="dot d2"></span></button>
+    <button class="tool widthBtn" data-w="3" aria-label="粗筆"><span class="dot d3"></span></button>
+
+    <span class="sep"></span>
+
+    <!-- 橡皮擦 -->
+    <button id="eraserBtn" class="tool" aria-label="橡皮擦">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="m7 21-4.3-4.3a2 2 0 0 1 0-2.8l9.6-9.6a2 2 0 0 1 2.8 0l5.6 5.6a2 2 0 0 1 0 2.8L13 21"/>
+        <path d="M21 21H7"/>
+        <path d="m5 11 8 8"/>
+      </svg>
+    </button>
+
+    <!-- 復原（只收回自己的） -->
+    <button id="undoBtn" class="tool" aria-label="復原自己上一筆">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 10H5V6"/>
+        <path d="M5.5 10.5A7 7 0 1 1 5 14"/>
+      </svg>
+    </button>
+
+    <!-- 清除整塊（長按兩秒） -->
+    <button id="clearBtn" class="tool danger" aria-label="長按兩秒清除整塊黑板">
+      <span id="clearFill"></span>
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6 7l1 13h10l1-13"/>
+      </svg>
+    </button>
+  </nav>
+
+  <p id="toast"></p>
+</main>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

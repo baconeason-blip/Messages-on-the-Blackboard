@@ -1,0 +1,30 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "boards": {
+      ".read": false,
+      ".write": false,
+
+      "$room": {
+        ".read":  "$room.length === 32",
+        ".write": "$room.length === 32",
+
+        "strokes": {
+          "$sid": {
+            ".validate": "newData.hasChildren(['u','c','w','p'])",
+
+            "u": { ".validate": "newData.isString() && newData.val().length <= 16" },
+            "c": { ".validate": "newData.isString() && (newData.val() === 'p' || newData.val() === 'b')" },
+            "w": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 3" },
+            "p": { ".validate": "newData.isString() && newData.val().length <= 6000 && newData.val().matches(/^[0-9,]*$/)" },
+            "d": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+
+            "$other": { ".validate": false }
+          }
+        }
+      }
+    }
+  }
+}

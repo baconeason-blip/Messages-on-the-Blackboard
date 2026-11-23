@@ -1,0 +1,177 @@
+/* ===========================================================
+   黑板 — 樣式
+   風格：乾淨簡樸，深墨綠黑板 + 粉筆質感
+   =========================================================== */
+
+:root{
+  --board:#1b3b30;          /* 黑板面 */
+  --board-dark:#142b23;     /* 黑板邊緣暗部 */
+  --page:#0d1714;           /* 頁面背景 */
+  --pink:#ff9ec7;
+  --blue:#8ad4ff;
+  --ink:#e8f0ec;
+  --muted:#8ba79b;
+  --tool-bg:#16261f;
+  --tool-bg-hi:#223a30;
+}
+
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html,body{
+  margin:0; padding:0;
+  height:100%;
+  overflow:hidden;                      /* 禁止整頁捲動，避免畫圖時頁面跟著動 */
+  overscroll-behavior:none;
+  background:var(--page);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",
+              "Helvetica Neue",Arial,sans-serif;
+  -webkit-user-select:none; user-select:none;
+}
+
+.hidden{ display:none !important; }
+
+/* ---------- 全螢幕遮罩（邀請碼 / 選顏色） ---------- */
+.overlay{
+  position:fixed; inset:0; z-index:20;
+  display:flex; align-items:center; justify-content:center;
+  padding:24px calc(24px + env(safe-area-inset-left)) 24px calc(24px + env(safe-area-inset-right));
+  background:radial-gradient(120% 90% at 50% 20%, #1d3c31 0%, #0d1714 75%);
+}
+.panel{ width:100%; max-width:380px; text-align:center; }
+.panel h1{
+  margin:0 0 10px; font-size:26px; font-weight:600; letter-spacing:2px;
+}
+.hint{ margin:0 0 22px; font-size:14px; line-height:1.7; color:var(--muted); }
+.warn{ min-height:18px; margin:8px 0 0; font-size:13px; color:#ffb4a2; }
+
+#codeInput{
+  width:100%; padding:14px 16px; font-size:17px;
+  color:var(--ink); background:#11211b;
+  border:1px solid #2d4a3d; border-radius:10px;
+  outline:none; text-align:center; letter-spacing:1px;
+}
+#codeInput:focus{ border-color:#4e7f6a; }
+
+button{ font-family:inherit; cursor:pointer; }
+
+.primary{
+  width:100%; margin-top:14px; padding:14px;
+  font-size:16px; font-weight:600; color:#0d1714;
+  background:var(--ink); border:none; border-radius:10px;
+  transition:transform .12s ease, opacity .12s ease;
+}
+.primary:hover{ opacity:.88; }
+.primary:active{ transform:scale(.98); }
+
+/* 顏色選擇 */
+.chalkRow{ display:flex; gap:14px; }
+.chalkPick{
+  flex:1; padding:22px 10px; font-size:15px; color:var(--ink);
+  background:#11211b; border:1px solid #2d4a3d; border-radius:14px;
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  transition:border-color .15s ease, background .15s ease;
+}
+.chalkPick:hover{ background:#172e26; border-color:#4e7f6a; }
+.chalkPick:active{ transform:scale(.98); }
+.swatch{
+  width:46px; height:46px; border-radius:50%;
+  background:var(--sw); box-shadow:0 0 18px var(--sw);
+}
+
+/* ---------- 主畫面 ---------- */
+#board{
+  position:fixed; inset:0;
+  display:flex; flex-direction:column;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+#topbar{
+  flex:0 0 auto;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 16px 4px;
+  font-size:12px; color:var(--muted); letter-spacing:1px;
+}
+#status{
+  width:9px; height:9px; border-radius:50%;
+  background:#6b7d75; transition:background .3s ease, box-shadow .3s ease;
+}
+#status.online{ background:#5fd39a; box-shadow:0 0 8px #5fd39a; }
+
+/* 畫布舞台：固定 3:4 直式，置中 */
+#stage{
+  flex:1 1 auto; min-height:0;
+  display:flex; align-items:center; justify-content:center;
+  padding:8px 12px;
+}
+#canvas{
+  /* 尺寸由 app.js 的 resizeCanvas() 精算後直接指定，
+     不依賴 CSS aspect-ratio —— 它在 max-width 夾住寬度時不會反推高度，
+     會讓畫布變形，兩台不同尺寸的裝置就會看到不同構圖。 */
+  display:block;
+  border-radius:8px;
+  background:
+    radial-gradient(130% 100% at 50% 0%, #22493c 0%, var(--board) 45%, var(--board-dark) 100%);
+  box-shadow:0 6px 26px rgba(0,0,0,.55), inset 0 0 60px rgba(0,0,0,.35);
+  touch-action:none;                    /* 關鍵：畫圖時不觸發捲動與縮放 */
+  cursor:crosshair;
+}
+
+/* 工具列 */
+#toolbar{
+  flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding:12px 16px 16px;
+}
+.tool{
+  position:relative; overflow:hidden;
+  width:46px; height:46px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--ink); background:var(--tool-bg);
+  border:1px solid #274136;
+  transition:background .15s ease, border-color .15s ease, transform .1s ease;
+}
+.tool:hover{ background:var(--tool-bg-hi); border-color:#3d6554; }
+.tool:active{ transform:scale(.94); }
+.tool.active{ background:var(--tool-bg-hi); border-color:#6fae92; }
+.tool.danger{ color:#ffb0a0; }
+
+.sep{ width:1px; height:26px; background:#274136; margin:0 2px; }
+
+/* 筆粗示意圓點，顏色由 JS 依身分設定 */
+.dot{ border-radius:50%; background:var(--myColor,#fff); display:block; }
+.d1{ width:5px;  height:5px;  }
+.d2{ width:9px;  height:9px;  }
+.d3{ width:15px; height:15px; }
+
+/* 清除鍵的長按進度條 */
+#clearFill{
+  position:absolute; left:0; bottom:0; width:100%; height:0%;
+  background:rgba(255,120,100,.3); pointer-events:none;
+  transition:height .05s linear;
+}
+
+/* 提示訊息 */
+#toast{
+  position:fixed; left:50%; bottom:86px; transform:translateX(-50%);
+  margin:0; padding:9px 16px; border-radius:20px;
+  font-size:13px; color:var(--ink); background:rgba(20,40,33,.94);
+  border:1px solid #2d4a3d;
+  opacity:0; pointer-events:none; transition:opacity .25s ease;
+  white-space:nowrap;
+}
+#toast.show{ opacity:1; }
+
+/* 橫式螢幕：工具列改放右側，畫布仍維持 3:4 */
+@media (orientation:landscape) and (max-height:520px){
+  #board{ flex-direction:row; }
+  #topbar{
+    order:3; flex-direction:column; justify-content:flex-start;
+    padding:10px 8px; gap:8px;
+  }
+  #toolbar{ order:1; flex-direction:column; padding:10px 12px; }
+  .sep{ width:26px; height:1px; }
+  #stage{ order:2; padding:8px; }
+  #toast{ bottom:16px; }
+}
